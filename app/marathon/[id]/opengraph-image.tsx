@@ -8,6 +8,11 @@ export const contentType = "image/png";
 const CATALOG_URL =
   "https://raw.githubusercontent.com/g1-ang/runningmate-data/main/data/marathons.json";
 
+// 같은 도메인 기준 절대 URL — Satori `<img src>` 는 절대 URL 필요.
+const SITE =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://runningmate-landing.vercel.app";
+const SCENE_IMAGE = `${SITE}/screenshots/03_마이룸_메인.png`;
+
 type Marathon = {
   id: string;
   name: string;
@@ -18,8 +23,11 @@ type Marathon = {
 };
 
 /**
- * 마라톤별 동적 OG 이미지. Satori 호환을 위해 단일 column flex column 구조,
- * `<span>` 대신 `<div>` 만 사용 (Satori 가 inline 요소 처리에 버그 있음).
+ * 마라톤별 OG 이미지 — iOS 앱의 픽셀 씬 (캐릭터·남산·한강 배경) 을
+ * 배경으로 깔고, 하단 그라디언트 위에 마라톤 이름만 작게 오버레이.
+ *
+ * 카톡이 이미 캡션·URL 카드에 마라톤 텍스트를 3번 반복 노출하므로
+ * OG 카드는 정보 반복 대신 브랜드 정체성에 집중.
  */
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   let m: Marathon | null = null;
@@ -36,13 +44,6 @@ export default async function Image({ params }: { params: Promise<{ id: string }
 
   if (!m) return defaultImage();
 
-  const dDay = Math.max(
-    0,
-    Math.round((new Date(m.raceDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-  );
-  const koDate = formatKoDate(m.raceDate);
-  const courses = m.courses.slice(0, 4).join("  ·  ");
-
   return new ImageResponse(
     (
       <div
@@ -50,70 +51,64 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          justifyContent: "center",
-          padding: "80px",
-          background: "linear-gradient(135deg, #F9F8F3 0%, #D6EFB1 100%)",
+          position: "relative",
+          background: "#F9F8F3",
+          overflow: "hidden",
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", fontSize: 28, color: "#1F4F2A", fontWeight: 700, marginBottom: 24 }}>
-          🏃 러닝메이트  ·  {m.region}
-        </div>
+        {/* 배경: iOS 앱 마이룸 스크린샷 (1320×2868). 상단 픽셀 씬이
+            드러나도록 가로로 채우고 위로 음수 오프셋. 1320 → 1300 폭
+            으로 살짝 축소 + 좌측 -50px 으로 중앙 정렬. */}
+        <img
+          src={SCENE_IMAGE}
+          alt=""
+          style={{
+            position: "absolute",
+            width: 1300,
+            top: -460,
+            left: -50,
+          }}
+        />
 
+        {/* 하단 그라디언트 + 마라톤명 오버레이 */}
         <div
           style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
             display: "flex",
-            fontSize: 26,
-            color: "#475240",
-            fontWeight: 700,
-            marginBottom: 20,
+            flexDirection: "column",
+            padding: "60px 70px 50px",
+            background:
+              "linear-gradient(to top, rgba(31, 79, 42, 0.95) 0%, rgba(31, 79, 42, 0.78) 55%, rgba(31, 79, 42, 0) 100%)",
+            color: "#F9F8F3",
           }}
         >
-          {koDate}  ·  D-{dDay}
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            fontSize: 70,
-            fontWeight: 900,
-            color: "#1F4F2A",
-            letterSpacing: -2,
-            lineHeight: 1.15,
-            marginBottom: 28,
-          }}
-        >
-          {m.name}
-        </div>
-
-        {m.venue && (
           <div
             style={{
               display: "flex",
-              fontSize: 26,
-              color: "#475240",
-              fontWeight: 600,
-              marginBottom: 28,
+              fontSize: 22,
+              fontWeight: 700,
+              opacity: 0.9,
+              marginBottom: 10,
+              letterSpacing: 1,
             }}
           >
-            📍 {m.venue}
+            러닝메이트 · 마라톤 일정
           </div>
-        )}
-
-        <div
-          style={{
-            display: "flex",
-            fontSize: 28,
-            fontWeight: 700,
-            color: "#1F4F2A",
-            background: "#FFFFFFCC",
-            padding: "12px 26px",
-            borderRadius: 999,
-          }}
-        >
-          {courses}
+          <div
+            style={{
+              display: "flex",
+              fontSize: 60,
+              fontWeight: 900,
+              letterSpacing: -1.5,
+              lineHeight: 1.1,
+            }}
+          >
+            {m.name}
+          </div>
         </div>
       </div>
     ),
@@ -129,31 +124,61 @@ function defaultImage() {
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "linear-gradient(135deg, #F9F8F3 0%, #D6EFB1 100%)",
-          color: "#1F4F2A",
+          position: "relative",
+          background: "#F9F8F3",
+          overflow: "hidden",
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ fontSize: 160, display: "flex" }}>🏃</div>
-        <div style={{ fontSize: 80, fontWeight: 900, marginTop: 24, display: "flex" }}>
-          러닝메이트
-        </div>
-        <div style={{ fontSize: 32, color: "#475240", marginTop: 16, display: "flex" }}>
-          한 걸음마다 꾸미는 러닝
+        <img
+          src={SCENE_IMAGE}
+          alt=""
+          style={{
+            position: "absolute",
+            width: 1300,
+            top: -460,
+            left: -50,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            display: "flex",
+            flexDirection: "column",
+            padding: "60px 70px 50px",
+            background:
+              "linear-gradient(to top, rgba(31, 79, 42, 0.95) 0%, rgba(31, 79, 42, 0.78) 55%, rgba(31, 79, 42, 0) 100%)",
+            color: "#F9F8F3",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              fontSize: 22,
+              fontWeight: 700,
+              opacity: 0.9,
+              marginBottom: 10,
+              letterSpacing: 1,
+            }}
+          >
+            한 걸음마다 꾸미는 러닝
+          </div>
+          <div
+            style={{
+              display: "flex",
+              fontSize: 72,
+              fontWeight: 900,
+              letterSpacing: -1.5,
+            }}
+          >
+            러닝메이트
+          </div>
         </div>
       </div>
     ),
     size
   );
-}
-
-function formatKoDate(iso: string): string {
-  const d = new Date(iso);
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
-  const wd = ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
-  return `${d.getFullYear()}년 ${m}월 ${day}일 (${wd})`;
 }

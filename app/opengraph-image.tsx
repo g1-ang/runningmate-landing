@@ -7,9 +7,13 @@ export const alt = `${SITE_NAME} — ${SITE_TAGLINE}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+const SITE =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://runningmate-landing.vercel.app";
+const SCENE_IMAGE = `${SITE}/screenshots/03_마이룸_메인.png`;
+
 /**
- * 카톡·트위터·페이스북 공유 시 미리보기 카드.
- * Next.js 가 /opengraph-image 라우트 자동 생성 → metadata 자동 연결.
+ * 랜딩페이지용 OG. 마라톤 OG 와 같은 비주얼 톤 (픽셀 씬 + 하단 그라데이션
+ * 텍스트) 으로 일관된 브랜드 인상.
  */
 export default function Image() {
   return new ImageResponse(
@@ -19,69 +23,58 @@ export default function Image() {
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "linear-gradient(135deg, #F9F8F3 0%, #D6EFB1 100%)",
-          fontFamily: "system-ui, -apple-system, sans-serif",
           position: "relative",
+          background: "#F9F8F3",
+          overflow: "hidden",
+          fontFamily: "sans-serif",
         }}
       >
+        <img
+          src={SCENE_IMAGE}
+          alt=""
+          style={{
+            position: "absolute",
+            width: 1300,
+            top: -460,
+            left: -50,
+          }}
+        />
         <div
           style={{
             position: "absolute",
-            top: 80,
-            right: 80,
+            bottom: 0,
+            left: 0,
+            right: 0,
             display: "flex",
-            alignItems: "center",
-            gap: 12,
-            background: "rgba(31, 79, 42, 0.92)",
+            flexDirection: "column",
+            padding: "60px 70px 50px",
+            background:
+              "linear-gradient(to top, rgba(31, 79, 42, 0.95) 0%, rgba(31, 79, 42, 0.78) 55%, rgba(31, 79, 42, 0) 100%)",
             color: "#F9F8F3",
-            padding: "10px 20px",
-            borderRadius: 999,
-            fontSize: 22,
-            fontWeight: 700,
           }}
         >
-          iOS · 출시 준비 중
-        </div>
-        <div style={{ fontSize: 180, marginBottom: 24 }}>🏃</div>
-        <div
-          style={{
-            fontSize: 96,
-            fontWeight: 900,
-            color: "#1F4F2A",
-            letterSpacing: -2,
-          }}
-        >
-          {SITE_NAME}
-        </div>
-        <div
-          style={{
-            fontSize: 44,
-            color: "#475240",
-            marginTop: 24,
-            fontWeight: 600,
-          }}
-        >
-          {SITE_TAGLINE}
-        </div>
-        <div
-          style={{
-            display: "flex",
-            gap: 16,
-            marginTop: 60,
-            fontSize: 28,
-            color: "#1F4F2A",
-            fontWeight: 700,
-          }}
-        >
-          <span style={{ background: "#FFFFFFAA", padding: "10px 24px", borderRadius: 999 }}>
-            📅 마라톤 달력
-          </span>
-          <span style={{ background: "#FFFFFFAA", padding: "10px 24px", borderRadius: 999 }}>
-            🏠 픽셀 마이룸
-          </span>
+          <div
+            style={{
+              display: "flex",
+              fontSize: 22,
+              fontWeight: 700,
+              opacity: 0.9,
+              marginBottom: 10,
+              letterSpacing: 1,
+            }}
+          >
+            {SITE_TAGLINE}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              fontSize: 80,
+              fontWeight: 900,
+              letterSpacing: -2,
+            }}
+          >
+            {SITE_NAME}
+          </div>
         </div>
       </div>
     ),
