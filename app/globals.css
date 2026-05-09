@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 폰트 로드는 layout.tsx 에서 <link> 로 처리 (Pretendard, Galmuri11). */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #F9F8F3;
+  color: #1A1F18;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* iOS 디바이스 프레임 mock 그림자 */
+.device-frame {
+  filter: drop-shadow(0 24px 48px rgba(31, 79, 42, 0.18))
+          drop-shadow(0 4px 12px rgba(31, 79, 42, 0.08));
+}
