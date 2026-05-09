@@ -1,15 +1,35 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "러닝메이트 — 한 걸음마다 꾸미는 러닝",
-  description:
-    "한국 마라톤 일정 + 8-bit 픽셀 캐릭터 마이룸. 달린 만큼 자라는 나만의 러너.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "마라톤", "러닝", "마라톤 일정", "마라톤 달력",
+    "한국 마라톤", "러닝 앱", "픽셀 캐릭터",
+    SITE_NAME,
+  ],
+  authors: [{ name: SITE_NAME }],
+  alternates: {
+    canonical: SITE_URL,
+  },
   openGraph: {
-    title: "러닝메이트",
-    description: "한 걸음마다 꾸미는 러닝",
+    title: SITE_NAME,
+    description: SITE_TAGLINE,
+    url: SITE_URL,
+    siteName: SITE_NAME,
     locale: "ko_KR",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_TAGLINE,
   },
   icons: {
     icon: "/favicon.ico",
