@@ -285,16 +285,8 @@ function Footer() {
           <div className="text-xs text-textMuted">한 걸음마다 꾸미는 러닝</div>
         </div>
         <div className="flex flex-wrap gap-6 text-xs">
-          <a href="mailto:sn_contentsmkt@snowcorp.com" className="hover:text-deepGreen">
+          <a href="mailto:runningmate.g1@gmail.com" className="hover:text-deepGreen">
             문의
-          </a>
-          <a
-            href="https://github.com/g1-ang/runningmate-data"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-deepGreen"
-          >
-            마라톤 데이터
           </a>
           <span className="text-textMuted">© 2026 RunningMate</span>
         </div>
