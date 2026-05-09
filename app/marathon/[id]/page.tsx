@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const dateStr = formatKoreanDate(m.raceDate);
   const description = `${dateStr} · ${m.region}${m.venue ? ` · ${m.venue}` : ""} · ${m.courses.join(", ")}`;
   const url = `${SITE_URL}/marathon/${m.id}`;
+  const ogImage = `${SITE_URL}/marathon/${m.id}/opengraph-image`;
   return {
     title: m.name,
     description,
@@ -36,11 +37,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url,
       type: "website",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: m.name }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${m.name} · 러닝메이트`,
       description,
+      images: [ogImage],
     },
   };
 }

@@ -1,7 +1,10 @@
 import { ImageResponse } from "next/og";
 import { fetchMarathons, formatKoreanDate } from "@/lib/marathons";
 
-export const runtime = "edge";
+// Edge runtime 에선 우리 fetchMarathons (외부 GitHub raw URL fetch + ISR) 가
+// 빈 응답을 내는 케이스가 있어서 nodejs runtime 으로 강제. ImageResponse 는
+// 두 runtime 모두 지원.
+export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

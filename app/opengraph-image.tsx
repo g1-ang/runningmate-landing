@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 
-export const runtime = "edge";
+// Marathon-specific OG 와 일관성을 위해 nodejs runtime 으로 통일.
+export const runtime = "nodejs";
 export const alt = `${SITE_NAME} — ${SITE_TAGLINE}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
