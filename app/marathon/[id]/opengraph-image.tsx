@@ -1,6 +1,8 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "nodejs";
+// edge runtime + 인라인 fetch — Satori 가 한글/이모지 fallback 폰트
+// 자동 처리. nodejs runtime 에선 폰트 부재로 500 에러 발생함을 확인.
+export const runtime = "edge";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
