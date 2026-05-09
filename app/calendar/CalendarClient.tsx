@@ -7,6 +7,7 @@ import { CalendarGrid } from "@/components/CalendarGrid";
 import { DayOverviewSheet } from "@/components/DayOverviewSheet";
 import { MarathonCard } from "@/components/MarathonCard";
 import { MarathonDetailModal } from "@/components/MarathonDetailModal";
+import { ReportModal } from "@/components/ReportModal";
 import {
   type CalendarEvent,
   type CalendarFilters,
@@ -35,6 +36,7 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
   const [sortMode, setSortMode] = useState<SortMode>("date-asc");
   const [selected, setSelected] = useState<Marathon | null>(null);
   const [dayOverview, setDayOverview] = useState<{ dayKey: string; events: CalendarEvent[] } | null>(null);
+  const [showReportModal, setShowReportModal] = useState(false);
   const { ids: favoriteIDs, isFavorite, toggle, hydrated } = useFavorites();
   const { countsMap, promotedSet } = useFavoriteCounts();
 
@@ -188,10 +190,18 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
           </div>
         )}
 
-        <p className="text-xs text-textMuted text-center mt-12 leading-relaxed">
-          일정 데이터 출처: 마라톤온라인(roadrun.co.kr) · 마지막 갱신:{" "}
-          {new Date(generatedAt).toLocaleDateString("ko-KR")}
-        </p>
+        <div className="mt-12 text-center space-y-3">
+          <button
+            onClick={() => setShowReportModal(true)}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-pastelLime text-deepGreen text-sm font-bold border border-deepGreen/30 hover:bg-neon transition"
+          >
+            🙋 빠진 대회 제보하기
+          </button>
+          <p className="text-xs text-textMuted leading-relaxed">
+            일정 데이터 출처: 마라톤온라인(roadrun.co.kr) · 마지막 갱신:{" "}
+            {new Date(generatedAt).toLocaleDateString("ko-KR")}
+          </p>
+        </div>
       </section>
 
       <MarathonDetailModal
@@ -209,6 +219,11 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
           const m = marathons.find((x) => x.id === id);
           if (m) setSelected(m);
         }}
+      />
+
+      <ReportModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
       />
 
       <Footer />
