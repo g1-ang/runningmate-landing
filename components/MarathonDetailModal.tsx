@@ -10,6 +10,7 @@ import {
   statusLabel,
   statusColorClass,
 } from "@/lib/marathons";
+import { GearRecommendations } from "./GearRecommendations";
 
 type Props = {
   marathon: Marathon | null;
@@ -135,6 +136,10 @@ export function MarathonDetailModal({
             ※ 일정 데이터는 마라톤온라인(roadrun.co.kr)에서 자동 수집된 정보입니다.
             정확한 신청·참가비·일정은 반드시 위 공식 사이트에서 확인해주세요.
           </p>
+
+          <div className="border-t border-border pt-6">
+            <GearRecommendations courses={marathon.courses} />
+          </div>
         </div>
       </div>
     </div>
