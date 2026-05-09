@@ -11,6 +11,7 @@ import {
   statusColorClass,
 } from "@/lib/marathons";
 import { shareMarathon } from "@/lib/share";
+import { useCompare } from "@/lib/useCompare";
 import { GearRecommendations } from "./GearRecommendations";
 import { MapLinks } from "./MapLinks";
 
@@ -28,6 +29,7 @@ export function MarathonDetailModal({
   onToggleFavorite,
 }: Props) {
   const [toast, setToast] = useState<string | null>(null);
+  const compare = useCompare();
 
   useEffect(() => {
     if (!toast) return;
@@ -144,15 +146,38 @@ export function MarathonDetailModal({
                 공식 사이트에서 신청 →
               </a>
             </div>
-            <button
-              onClick={async () => {
-                const msg = await shareMarathon(marathon);
-                if (msg) setToast(msg);
-              }}
-              className="w-full px-5 py-3 rounded-xl text-xs font-bold border border-border text-textSecondary bg-ivory hover:border-deepGreen hover:text-deepGreen transition"
-            >
-              🔗 카톡·링크로 공유
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={async () => {
+                  const msg = await shareMarathon(marathon);
+                  if (msg) setToast(msg);
+                }}
+                className="px-4 py-3 rounded-xl text-xs font-bold border border-border text-textSecondary bg-ivory hover:border-deepGreen hover:text-deepGreen transition"
+              >
+                🔗 공유
+              </button>
+              <button
+                onClick={() => {
+                  const ok = compare.toggle(marathon.id);
+                  if (!ok) {
+                    setToast(`비교는 최대 ${compare.max}개까지 가능해요.`);
+                  } else {
+                    setToast(
+                      compare.has(marathon.id)
+                        ? "비교에서 빼기"
+                        : "비교에 추가됨"
+                    );
+                  }
+                }}
+                className={`px-4 py-3 rounded-xl text-xs font-bold border transition ${
+                  compare.has(marathon.id)
+                    ? "bg-deepGreen text-ivory border-deepGreen"
+                    : "border-border text-textSecondary bg-ivory hover:border-deepGreen hover:text-deepGreen"
+                }`}
+              >
+                {compare.has(marathon.id) ? "✓ 비교 중" : "⚖️ 비교 추가"}
+              </button>
+            </div>
           </div>
 
           {toast && (

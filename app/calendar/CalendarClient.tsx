@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CalendarFiltersBar } from "@/components/CalendarFilters";
 import { CalendarGrid } from "@/components/CalendarGrid";
+import { CompareFAB } from "@/components/CompareFAB";
 import { DayOverviewSheet } from "@/components/DayOverviewSheet";
 import { MarathonCard } from "@/components/MarathonCard";
 import { MarathonDetailModal } from "@/components/MarathonDetailModal";
@@ -225,6 +226,8 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
         open={showReportModal}
         onClose={() => setShowReportModal(false)}
       />
+
+      <CompareFAB />
 
       <Footer />
     </main>
