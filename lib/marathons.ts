@@ -165,6 +165,7 @@ function daysBetween(a: Date, b: Date): number {
 export type CalendarFilters = {
   regions: Set<Region>;
   courses: Set<Course>;
+  statuses: Set<MarathonStatus>;
   query: string;
   favoritesOnly: boolean;
   hideFinished: boolean;
@@ -173,6 +174,7 @@ export type CalendarFilters = {
 export const emptyFilters: CalendarFilters = {
   regions: new Set(),
   courses: new Set(),
+  statuses: new Set(),
   query: "",
   favoritesOnly: false,
   hideFinished: true,
@@ -194,10 +196,11 @@ export function applyFilters(
 
     if (filters.favoritesOnly && !favoriteIDs.has(m.id)) return false;
 
-    if (filters.hideFinished) {
-      const status = statusOf(m, now);
-      if (status === "finished") return false;
-    }
+    const status = statusOf(m, now);
+
+    if (filters.hideFinished && status === "finished") return false;
+
+    if (filters.statuses.size > 0 && !filters.statuses.has(status)) return false;
 
     if (filters.query.trim()) {
       const q = filters.query.trim().toLowerCase();
@@ -230,3 +233,72 @@ export const ALL_REGIONS: Region[] = [
 ];
 
 export const ALL_COURSES: Course[] = ["5km", "10km", "Half", "Full"];
+
+/** 필터 칩으로 노출하는 상태들. `race-day`/`finished` 는 별도 처리. */
+export const FILTERABLE_STATUSES: MarathonStatus[] = [
+  "open",
+  "closing-soon",
+  "upcoming-open",
+  "closed",
+];
+
+// MARK: - Calendar grid helpers (월간 뷰)
+
+/** 주어진 날짜의 월 1일을 자정 기준으로 반환. */
+export function startOfMonth(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+/** Sun(0)..Sat(6) 시작의 6주(42칸) 그리드 날짜 배열 생성. */
+export function monthGridDates(month: Date): Date[] {
+  const first = startOfMonth(month);
+  const startWeekday = first.getDay(); // 0=Sun
+  const dates: Date[] = [];
+  // prev month padding
+  for (let i = startWeekday; i > 0; i--) {
+    dates.push(new Date(first.getFullYear(), first.getMonth(), 1 - i));
+  }
+  // current month days
+  const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    dates.push(new Date(first.getFullYear(), first.getMonth(), day));
+  }
+  // pad to 42 (6 weeks) so layout stable
+  while (dates.length < 42) {
+    const last = dates[dates.length - 1];
+    dates.push(new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1));
+  }
+  return dates;
+}
+
+/** raceDate 기준 일자별 그룹. key = 'YYYY-MM-DD' */
+export function indexByDay(marathons: Marathon[]): Map<string, Marathon[]> {
+  const out = new Map<string, Marathon[]>();
+  for (const m of marathons) {
+    const key = dayKeyOf(m.raceDate);
+    const arr = out.get(key) ?? [];
+    arr.push(m);
+    out.set(key, arr);
+  }
+  return out;
+}
+
+export function dayKeyOf(iso: string | Date): string {
+  const d = typeof iso === "string" ? new Date(iso) : iso;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+export function isSameMonth(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+}
+
+export function isToday(d: Date, now: Date = new Date()): boolean {
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+}

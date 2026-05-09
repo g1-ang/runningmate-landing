@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { CalendarFiltersBar } from "@/components/CalendarFilters";
+import { CalendarGrid } from "@/components/CalendarGrid";
 import { MarathonCard } from "@/components/MarathonCard";
 import { MarathonDetailModal } from "@/components/MarathonDetailModal";
 import {
@@ -20,8 +21,11 @@ type Props = {
   generatedAt: string;
 };
 
+type ViewMode = "calendar" | "list";
+
 export function CalendarClient({ marathons, generatedAt }: Props) {
   const [filters, setFilters] = useState<CalendarFilters>(emptyFilters);
+  const [view, setView] = useState<ViewMode>("calendar");
   const [selected, setSelected] = useState<Marathon | null>(null);
   const { ids: favoriteIDs, isFavorite, toggle, hydrated } = useFavorites();
 
@@ -52,13 +56,14 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
       </section>
 
       <section className="sticky top-[57px] z-20 bg-ivory/90 backdrop-blur-md border-b border-border">
-        <div className="mx-auto max-w-5xl px-5 py-4">
+        <div className="mx-auto max-w-5xl px-5 py-4 space-y-4">
           <CalendarFiltersBar
             filters={filters}
             onChange={setFilters}
             totalCount={marathons.length}
             filteredCount={filtered.length}
           />
+          <ViewToggle view={view} onChange={setView} />
         </div>
       </section>
 
@@ -67,29 +72,35 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
           <EmptyState favoritesOnly={filters.favoritesOnly} />
         )}
 
-        <div className="space-y-10">
-          {monthKeys.map((key) => (
-            <div key={key}>
-              <h2 className="font-pixel text-lg md:text-xl text-deepGreen mb-4 sticky top-[calc(57px+115px)] md:top-[calc(57px+95px)] bg-ivory/95 backdrop-blur py-2 z-10">
-                {monthLabelOf(key)}
-                <span className="ml-2 text-xs font-bold text-textMuted">
-                  {grouped.get(key)!.length}개 대회
-                </span>
-              </h2>
-              <div className="grid md:grid-cols-2 gap-3">
-                {grouped.get(key)!.map((m) => (
-                  <MarathonCard
-                    key={m.id}
-                    marathon={m}
-                    isFavorite={isFavorite(m.id)}
-                    onToggleFavorite={toggle}
-                    onSelect={setSelected}
-                  />
-                ))}
+        {filtered.length > 0 && view === "calendar" && (
+          <CalendarGrid marathons={filtered} onSelect={setSelected} />
+        )}
+
+        {filtered.length > 0 && view === "list" && (
+          <div className="space-y-10">
+            {monthKeys.map((key) => (
+              <div key={key}>
+                <h2 className="font-pixel text-lg md:text-xl text-deepGreen mb-4">
+                  {monthLabelOf(key)}
+                  <span className="ml-2 text-xs font-bold text-textMuted">
+                    {grouped.get(key)!.length}개 대회
+                  </span>
+                </h2>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {grouped.get(key)!.map((m) => (
+                    <MarathonCard
+                      key={m.id}
+                      marathon={m}
+                      isFavorite={isFavorite(m.id)}
+                      onToggleFavorite={toggle}
+                      onSelect={setSelected}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <p className="text-xs text-textMuted text-center mt-12 leading-relaxed">
           일정 데이터 출처: 마라톤온라인(roadrun.co.kr) · 마지막 갱신:{" "}
@@ -143,6 +154,29 @@ function Footer() {
         © 2026 RunningMate · 일정 출처: 마라톤온라인 (roadrun.co.kr)
       </div>
     </footer>
+  );
+}
+
+function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: ViewMode) => void }) {
+  return (
+    <div className="inline-flex rounded-full border border-border bg-ivory p-1 text-xs font-bold">
+      <button
+        onClick={() => onChange("calendar")}
+        className={`px-4 py-1.5 rounded-full transition ${
+          view === "calendar" ? "bg-deepGreen text-ivory" : "text-textSecondary hover:text-deepGreen"
+        }`}
+      >
+        📅 달력
+      </button>
+      <button
+        onClick={() => onChange("list")}
+        className={`px-4 py-1.5 rounded-full transition ${
+          view === "list" ? "bg-deepGreen text-ivory" : "text-textSecondary hover:text-deepGreen"
+        }`}
+      >
+        ☰ 목록
+      </button>
+    </div>
   );
 }
 
