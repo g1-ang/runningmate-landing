@@ -12,6 +12,7 @@ import {
 } from "@/lib/marathons";
 import { shareMarathon } from "@/lib/share";
 import { GearRecommendations } from "./GearRecommendations";
+import { MapLinks } from "./MapLinks";
 
 type Props = {
   marathon: Marathon | null;
@@ -119,6 +120,8 @@ export function MarathonDetailModal({
               <DetailRow label="참가비" value={marathon.entryFee || "—"} />
             </dl>
           </section>
+
+          {marathon.venue && <MapLinks venue={marathon.venue} />}
 
           <div className="space-y-3 pt-2">
             <div className="flex flex-col sm:flex-row gap-3">

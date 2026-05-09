@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GearRecommendations } from "@/components/GearRecommendations";
+import { MapLinks } from "@/components/MapLinks";
 import {
   dDayLabel,
   fetchMarathons,
@@ -118,6 +119,8 @@ export default async function MarathonPage({ params }: Props) {
             <DetailRow label="참가비" value={m.entryFee || "—"} />
           </dl>
         </section>
+
+        {m.venue && <MapLinks venue={m.venue} />}
 
         <a
           href={m.officialURL}
