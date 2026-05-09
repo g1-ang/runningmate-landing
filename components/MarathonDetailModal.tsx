@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   type Marathon,
   dDayLabel,
@@ -10,6 +10,7 @@ import {
   statusLabel,
   statusColorClass,
 } from "@/lib/marathons";
+import { shareMarathon } from "@/lib/share";
 import { GearRecommendations } from "./GearRecommendations";
 
 type Props = {
@@ -25,6 +26,14 @@ export function MarathonDetailModal({
   onClose,
   onToggleFavorite,
 }: Props) {
+  const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2400);
+    return () => clearTimeout(t);
+  }, [toast]);
+
   useEffect(() => {
     if (!marathon) return;
     const onKey = (e: KeyboardEvent) => {
@@ -111,26 +120,47 @@ export function MarathonDetailModal({
             </dl>
           </section>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <div className="space-y-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => onToggleFavorite(marathon.id)}
+                className={`flex-1 px-5 py-3.5 rounded-xl text-sm font-bold border transition ${
+                  isFavorite
+                    ? "bg-deepGreen text-ivory border-deepGreen"
+                    : "bg-ivory text-deepGreen border-deepGreen hover:bg-pastelLime"
+                }`}
+              >
+                {isFavorite ? "♥ 찜 해제" : "♡ 찜하기"}
+              </button>
+              <a
+                href={marathon.officialURL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 px-5 py-3.5 rounded-xl text-sm font-bold bg-deepGreen text-ivory hover:opacity-90 transition text-center"
+              >
+                공식 사이트에서 신청 →
+              </a>
+            </div>
             <button
-              onClick={() => onToggleFavorite(marathon.id)}
-              className={`flex-1 px-5 py-3.5 rounded-xl text-sm font-bold border transition ${
-                isFavorite
-                  ? "bg-deepGreen text-ivory border-deepGreen"
-                  : "bg-ivory text-deepGreen border-deepGreen hover:bg-pastelLime"
-              }`}
+              onClick={async () => {
+                const msg = await shareMarathon(marathon);
+                if (msg) setToast(msg);
+              }}
+              className="w-full px-5 py-3 rounded-xl text-xs font-bold border border-border text-textSecondary bg-ivory hover:border-deepGreen hover:text-deepGreen transition"
             >
-              {isFavorite ? "♥ 찜 해제" : "♡ 찜하기"}
+              🔗 카톡·링크로 공유
             </button>
-            <a
-              href={marathon.officialURL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 px-5 py-3.5 rounded-xl text-sm font-bold bg-deepGreen text-ivory hover:opacity-90 transition text-center"
-            >
-              공식 사이트에서 신청 →
-            </a>
           </div>
+
+          {toast && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-deepGreen text-ivory text-xs font-bold px-4 py-3 rounded-full shadow-lg"
+            >
+              {toast}
+            </div>
+          )}
 
           <p className="text-xs text-textMuted leading-relaxed">
             ※ 일정 데이터는 마라톤온라인(roadrun.co.kr)에서 자동 수집된 정보입니다.
