@@ -131,14 +131,14 @@ export function CalendarFiltersBar({ filters, onChange, totalCount, filteredCoun
 
 function statusTone(s: MarathonStatus): ChipTone {
   switch (s) {
-    case "open":
-      return "lime";
-    case "closing-soon":
-      return "sand";
-    case "upcoming-open":
+    case "before-open":
       return "sky";
-    case "closed":
-      return "muted";
+    case "before-close":
+      return "lime";
+    case "before-announce":
+      return "lilac";
+    case "before-race":
+      return "pink";
     default:
       return "muted";
   }
@@ -153,7 +153,7 @@ function ChipRow({ label, children }: { label: string; children: React.ReactNode
   );
 }
 
-type ChipTone = "default" | "lime" | "sand" | "sky" | "muted";
+type ChipTone = "default" | "lime" | "sand" | "sky" | "lilac" | "pink" | "muted";
 
 function Chip({
   active,
@@ -171,6 +171,8 @@ function Chip({
     if (tone === "lime") activeClass = "bg-pastelLime text-deepGreen border-deepGreen/40";
     else if (tone === "sand") activeClass = "bg-pastelSand text-[#7A4400] border-[#7A4400]/40";
     else if (tone === "sky") activeClass = "bg-pastelSky text-[#1353A6] border-[#1353A6]/40";
+    else if (tone === "lilac") activeClass = "bg-pastelLilac text-[#5C2DAA] border-[#5C2DAA]/40";
+    else if (tone === "pink") activeClass = "bg-pastelPink text-[#B01760] border-[#B01760]/40";
     else if (tone === "muted") activeClass = "bg-surfaceMuted text-textPrimary border-textPrimary/30";
   }
 

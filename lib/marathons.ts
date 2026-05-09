@@ -57,43 +57,42 @@ export async function fetchMarathons(): Promise<MarathonCatalog> {
 }
 
 // MARK: - Status / 시점 계산
+//
+// 각 마라톤은 4개의 마일스톤 일자가 있고, "지금 시점에서 다음에 도래할
+// 마일스톤" 으로 한 가지 status 에 속한다 (mutually exclusive). 라벨이
+// 곧 다음에 일어날 일을 가리키게 해서 사용자 직관성 ↑.
 
 export type MarathonStatus =
-  | "upcoming-open" // 아직 신청 안 열림
-  | "open" // 신청 중
-  | "closing-soon" // 신청 마감 D-7 이내
-  | "closed" // 신청 마감, 대회 전
-  | "race-day" // 오늘이 대회일
-  | "finished"; // 끝남
+  | "before-open"      // 신청 시작 — 아직 신청 안 열림 (next: registrationOpenDate)
+  | "before-close"     // 신청 마감 — 현재 신청 중 (next: registrationCloseDate)
+  | "before-announce"  // 발표 — 신청 끝, 발표 대기 (next: announcementDate)
+  | "before-race"      // 대회일 — 발표 끝, 대회 대기 또는 당일 (next: raceDate)
+  | "finished";        // 종료 — raceDate 지남
 
 export function statusOf(m: Marathon, now: Date = new Date()): MarathonStatus {
   const today = startOfDay(now);
   const open = startOfDay(new Date(m.registrationOpenDate));
   const close = startOfDay(new Date(m.registrationCloseDate));
+  const announce = startOfDay(new Date(m.announcementDate));
   const race = startOfDay(new Date(m.raceDate));
 
-  if (today.getTime() === race.getTime()) return "race-day";
   if (today > race) return "finished";
-  if (today < open) return "upcoming-open";
-  if (today <= close) {
-    const daysToClose = daysBetween(today, close);
-    return daysToClose <= 7 ? "closing-soon" : "open";
-  }
-  return "closed";
+  if (today >= announce) return "before-race";
+  if (today > close) return "before-announce";
+  if (today >= open) return "before-close";
+  return "before-open";
 }
 
 export function statusLabel(status: MarathonStatus): string {
   switch (status) {
-    case "upcoming-open":
-      return "신청 예정";
-    case "open":
-      return "신청 중";
-    case "closing-soon":
-      return "마감 임박";
-    case "closed":
+    case "before-open":
+      return "신청 시작";
+    case "before-close":
       return "신청 마감";
-    case "race-day":
-      return "오늘 대회";
+    case "before-announce":
+      return "발표";
+    case "before-race":
+      return "대회일";
     case "finished":
       return "종료";
   }
@@ -101,16 +100,14 @@ export function statusLabel(status: MarathonStatus): string {
 
 export function statusColorClass(status: MarathonStatus): string {
   switch (status) {
-    case "open":
-      return "bg-pastelLime text-deepGreen";
-    case "closing-soon":
-      return "bg-pastelSand text-[#7A4400]";
-    case "upcoming-open":
-      return "bg-pastelSky text-[#1353A6]";
-    case "closed":
-      return "bg-surfaceMuted text-textMuted";
-    case "race-day":
-      return "bg-pastelPink text-[#B01760]";
+    case "before-open":
+      return "bg-pastelSky text-[#1353A6]"; // 미래 / 대기
+    case "before-close":
+      return "bg-pastelLime text-deepGreen"; // 신청 중! 적극
+    case "before-announce":
+      return "bg-pastelLilac text-[#5C2DAA]"; // 결과 대기
+    case "before-race":
+      return "bg-pastelPink text-[#B01760]"; // 대회 임박
     case "finished":
       return "bg-surfaceMuted text-textMuted";
   }
@@ -234,12 +231,12 @@ export const ALL_REGIONS: Region[] = [
 
 export const ALL_COURSES: Course[] = ["5km", "10km", "Half", "Full"];
 
-/** 필터 칩으로 노출하는 상태들. `race-day`/`finished` 는 별도 처리. */
+/** 필터 칩으로 노출하는 상태들. `finished` 는 "+ 종료 포함" 토글로 별도 처리. */
 export const FILTERABLE_STATUSES: MarathonStatus[] = [
-  "open",
-  "closing-soon",
-  "upcoming-open",
-  "closed",
+  "before-open",
+  "before-close",
+  "before-announce",
+  "before-race",
 ];
 
 // MARK: - Calendar grid helpers (월간 뷰)
