@@ -14,6 +14,7 @@ import { shareMarathon } from "@/lib/share";
 import { useCompare } from "@/lib/useCompare";
 import { GearRecommendations } from "./GearRecommendations";
 import { MapLinks } from "./MapLinks";
+import { ReviewSection } from "./ReviewSection";
 
 type Props = {
   marathon: Marathon | null;
@@ -124,6 +125,8 @@ export function MarathonDetailModal({
           </section>
 
           {marathon.venue && <MapLinks venue={marathon.venue} />}
+
+          <ReviewSection marathonId={marathon.id} />
 
           <div className="space-y-3 pt-2">
             <div className="flex flex-col sm:flex-row gap-3">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GearRecommendations } from "@/components/GearRecommendations";
 import { MapLinks } from "@/components/MapLinks";
+import { ReviewSection } from "@/components/ReviewSection";
 import {
   dDayLabel,
   fetchMarathons,
@@ -121,6 +122,8 @@ export default async function MarathonPage({ params }: Props) {
         </section>
 
         {m.venue && <MapLinks venue={m.venue} />}
+
+        <ReviewSection marathonId={m.id} />
 
         <a
           href={m.officialURL}
