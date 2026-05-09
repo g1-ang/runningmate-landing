@@ -35,7 +35,7 @@ export default function Image() {
           style={{
             position: "absolute",
             width: 1500,
-            top: -780,
+            top: -1100,
             left: -150,
           }}
         />
