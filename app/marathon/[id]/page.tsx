@@ -143,7 +143,7 @@ export default async function MarathonPage({ params }: Props) {
         </p>
 
         <div className="border-t border-border pt-8">
-          <GearRecommendations courses={m.courses} />
+          <GearRecommendations courses={m.courses} raceDate={m.raceDate} />
         </div>
       </article>
 

@@ -209,7 +209,10 @@ export function MarathonDetailModal({
           </p>
 
           <div className="border-t border-border pt-6">
-            <GearRecommendations courses={marathon.courses} />
+            <GearRecommendations
+              courses={marathon.courses}
+              raceDate={marathon.raceDate}
+            />
           </div>
         </div>
       </div>
