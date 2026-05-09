@@ -317,6 +317,86 @@ export function indexByDay(marathons: Marathon[]): Map<string, Marathon[]> {
   return out;
 }
 
+// MARK: - Calendar event model
+//
+// 각 마라톤은 4개의 마일스톤 일자를 갖는다 (open / close / announce / race).
+// 캘린더 뷰는 이 4개 중 사용자가 선택한 *이벤트 타입* 들만 표시한다.
+// chip 한 개만 선택 → 해당 일자에만 마라톤 노출. 여러 개 선택 → 한
+// 마라톤이 여러 일자에 노출 (각 칩 색상으로 구분).
+
+export type CalendarEventType =
+  | "before-open"
+  | "before-close"
+  | "before-announce"
+  | "before-race";
+
+export type CalendarEvent = {
+  marathon: Marathon;
+  type: CalendarEventType;
+  date: string; // ISO
+};
+
+const ALL_EVENT_TYPES: CalendarEventType[] = [
+  "before-open",
+  "before-close",
+  "before-announce",
+  "before-race",
+];
+
+export function eventDateOf(m: Marathon, type: CalendarEventType): string {
+  switch (type) {
+    case "before-open":     return m.registrationOpenDate;
+    case "before-close":    return m.registrationCloseDate;
+    case "before-announce": return m.announcementDate;
+    case "before-race":     return m.raceDate;
+  }
+}
+
+export function eventTypeLabel(type: CalendarEventType): string {
+  switch (type) {
+    case "before-open":     return "신청 시작";
+    case "before-close":    return "신청 마감";
+    case "before-announce": return "발표";
+    case "before-race":     return "대회일";
+  }
+}
+
+/**
+ * 마라톤들에서 사용자 선택 이벤트 타입에 해당하는 이벤트들 생성.
+ * statuses 가 비어있으면 "대회일" 만 (캘린더 기본은 보수적, 클러터 회피).
+ * `finished` 가 set 에 있으면 무시 (이벤트 타입이 아님).
+ */
+export function calendarEventsForMarathons(
+  marathons: Marathon[],
+  selectedTypes: Set<MarathonStatus>
+): CalendarEvent[] {
+  const types: CalendarEventType[] =
+    selectedTypes.size === 0
+      ? ["before-race"]
+      : ALL_EVENT_TYPES.filter((t) => selectedTypes.has(t));
+  if (types.length === 0) return [];
+
+  const out: CalendarEvent[] = [];
+  for (const m of marathons) {
+    for (const t of types) {
+      out.push({ marathon: m, type: t, date: eventDateOf(m, t) });
+    }
+  }
+  return out;
+}
+
+/** 이벤트들을 일자별 그룹 (CalendarGrid 용). */
+export function indexEventsByDay(events: CalendarEvent[]): Map<string, CalendarEvent[]> {
+  const out = new Map<string, CalendarEvent[]>();
+  for (const e of events) {
+    const key = dayKeyOf(e.date);
+    const arr = out.get(key) ?? [];
+    arr.push(e);
+    out.set(key, arr);
+  }
+  return out;
+}
+
 export function dayKeyOf(iso: string | Date): string {
   const d = typeof iso === "string" ? new Date(iso) : iso;
   const y = d.getFullYear();

@@ -2,36 +2,51 @@
 
 import { useMemo, useState } from "react";
 import {
+  type CalendarEvent,
+  type CalendarEventType,
   type Marathon,
+  type MarathonStatus,
+  calendarEventsForMarathons,
   dayKeyOf,
-  indexByDay,
+  eventTypeLabel,
+  indexEventsByDay,
   isSameMonth,
   isToday,
   monthGridDates,
   startOfMonth,
-  statusOf,
-  statusColorClass,
-  statusLabel,
 } from "@/lib/marathons";
 
 type Props = {
   marathons: Marathon[];
-  onSelect: (m: Marathon) => void;
+  selectedTypes: Set<MarathonStatus>;
+  onSelectMarathon: (m: Marathon) => void;
+  onSelectDay: (date: string, events: CalendarEvent[]) => void;
 };
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
-export function CalendarGrid({ marathons, onSelect }: Props) {
+export function CalendarGrid({
+  marathons,
+  selectedTypes,
+  onSelectMarathon,
+  onSelectDay,
+}: Props) {
+  const events = useMemo(
+    () => calendarEventsForMarathons(marathons, selectedTypes),
+    [marathons, selectedTypes]
+  );
+  const byDay = useMemo(() => indexEventsByDay(events), [events]);
+
   const initialMonth = useMemo(() => {
-    if (marathons.length === 0) return startOfMonth(new Date());
     const today = startOfMonth(new Date());
-    const earliest = startOfMonth(new Date(marathons[0].raceDate));
+    if (events.length === 0) return today;
+    const earliestDate = events.reduce((min, e) => (e.date < min ? e.date : min), events[0].date);
+    const earliest = startOfMonth(new Date(earliestDate));
     return today < earliest ? earliest : today;
-  }, [marathons]);
+  }, [events]);
 
   const [month, setMonth] = useState<Date>(initialMonth);
   const dates = useMemo(() => monthGridDates(month), [month]);
-  const byDay = useMemo(() => indexByDay(marathons), [marathons]);
 
   const monthLabel = `${month.getFullYear()}년 ${month.getMonth() + 1}월`;
 
@@ -77,12 +92,12 @@ export function CalendarGrid({ marathons, onSelect }: Props) {
       <div className="grid grid-cols-7 auto-rows-fr">
         {dates.map((d, i) => {
           const key = dayKeyOf(d);
-          const dayMarathons = byDay.get(key) ?? [];
+          const dayEvents = byDay.get(key) ?? [];
           const inMonth = isSameMonth(d, month);
           const today = isToday(d);
           const weekday = d.getDay();
           const showFirstN = 2;
-          const overflow = dayMarathons.length - showFirstN;
+          const overflow = dayEvents.length - showFirstN;
 
           return (
             <div
@@ -107,13 +122,17 @@ export function CalendarGrid({ marathons, onSelect }: Props) {
                 {d.getDate()}
               </div>
               <div className="space-y-0.5">
-                {dayMarathons.slice(0, showFirstN).map((m) => (
-                  <CalendarChip key={m.id} marathon={m} onClick={() => onSelect(m)} />
+                {dayEvents.slice(0, showFirstN).map((e, idx) => (
+                  <CalendarEntry
+                    key={`${e.marathon.id}-${e.type}-${idx}`}
+                    event={e}
+                    onClick={() => onSelectMarathon(e.marathon)}
+                  />
                 ))}
                 {overflow > 0 && (
                   <button
-                    onClick={() => onSelect(dayMarathons[showFirstN])}
-                    className="block w-full text-[10px] font-bold text-textMuted hover:text-deepGreen text-left truncate"
+                    onClick={() => onSelectDay(key, dayEvents)}
+                    className="block w-full text-[10px] font-bold text-textMuted hover:text-deepGreen text-left truncate underline-offset-2 hover:underline"
                   >
                     +{overflow}개 더
                   </button>
@@ -127,15 +146,23 @@ export function CalendarGrid({ marathons, onSelect }: Props) {
   );
 }
 
-function CalendarChip({ marathon, onClick }: { marathon: Marathon; onClick: () => void }) {
-  const status = statusOf(marathon);
+function CalendarEntry({ event, onClick }: { event: CalendarEvent; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      title={`${marathon.name} (${statusLabel(status)})`}
-      className={`block w-full rounded px-1 md:px-1.5 py-0.5 text-[10px] md:text-[11px] font-bold truncate text-left ${statusColorClass(status)} hover:opacity-80 transition`}
+      title={`${event.marathon.name} (${eventTypeLabel(event.type)})`}
+      className={`block w-full rounded px-1 md:px-1.5 py-0.5 text-[10px] md:text-[11px] font-bold truncate text-left hover:opacity-80 transition ${eventTypeColorClass(event.type)}`}
     >
-      {marathon.name}
+      {event.marathon.name}
     </button>
   );
+}
+
+export function eventTypeColorClass(type: CalendarEventType): string {
+  switch (type) {
+    case "before-open":     return "bg-pastelSky text-[#1353A6]";
+    case "before-close":    return "bg-pastelLime text-deepGreen";
+    case "before-announce": return "bg-pastelLilac text-[#5C2DAA]";
+    case "before-race":     return "bg-pastelPink text-[#B01760]";
+  }
 }

@@ -4,9 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CalendarFiltersBar } from "@/components/CalendarFilters";
 import { CalendarGrid } from "@/components/CalendarGrid";
+import { DayOverviewSheet } from "@/components/DayOverviewSheet";
 import { MarathonCard } from "@/components/MarathonCard";
 import { MarathonDetailModal } from "@/components/MarathonDetailModal";
 import {
+  type CalendarEvent,
   type CalendarFilters,
   type Marathon,
   type SortMode,
@@ -32,6 +34,7 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
   const [viewWasUserSet, setViewWasUserSet] = useState(false);
   const [sortMode, setSortMode] = useState<SortMode>("date-asc");
   const [selected, setSelected] = useState<Marathon | null>(null);
+  const [dayOverview, setDayOverview] = useState<{ dayKey: string; events: CalendarEvent[] } | null>(null);
   const { ids: favoriteIDs, isFavorite, toggle, hydrated } = useFavorites();
   const { countsMap, promotedSet } = useFavoriteCounts();
 
@@ -53,10 +56,27 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
     setViewWasUserSet(true);
   };
 
-  const filtered = useMemo(
-    () => applyFilters(marathons, filters, favoriteIDs),
-    [marathons, filters, favoriteIDs]
+  // 캘린더 뷰는 status chip 을 "이벤트 타입 필터" 로 해석하므로
+  // applyFilters 는 status 체크 없이 동작해야 한다. List 뷰는 phase
+  // 필터로 동작 (기존 의미 유지). 두 view 가 같은 chip 상태를 다르게
+  // 해석하지만, 사용자 의도(예: "신청마감" → 신청 받는 마라톤들 또는
+  // 그 마감일들)가 두 view 에서 일관되게 충족된다.
+  const filtersForList = filters;
+  const filtersForCalendar: CalendarFilters = useMemo(
+    () => ({ ...filters, statuses: new Set() }),
+    [filters]
   );
+
+  const filteredForList = useMemo(
+    () => applyFilters(marathons, filtersForList, favoriteIDs),
+    [marathons, filtersForList, favoriteIDs]
+  );
+  const filteredForCalendar = useMemo(
+    () => applyFilters(marathons, filtersForCalendar, favoriteIDs),
+    [marathons, filtersForCalendar, favoriteIDs]
+  );
+
+  const filtered = view === "calendar" ? filteredForCalendar : filteredForList;
 
   const sorted = useMemo(
     () => sortMarathons(filtered, sortMode, countsMap, promotedSet),
@@ -108,7 +128,12 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
         )}
 
         {filtered.length > 0 && view === "calendar" && (
-          <CalendarGrid marathons={sorted} onSelect={setSelected} />
+          <CalendarGrid
+            marathons={sorted}
+            selectedTypes={filters.statuses}
+            onSelectMarathon={setSelected}
+            onSelectDay={(dayKey, events) => setDayOverview({ dayKey, events })}
+          />
         )}
 
         {filtered.length > 0 && view === "list" && sortMode === "date-asc" && monthKeys && (
@@ -174,6 +199,16 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
         isFavorite={selected ? isFavorite(selected.id) : false}
         onClose={() => setSelected(null)}
         onToggleFavorite={toggle}
+      />
+
+      <DayOverviewSheet
+        dayKey={dayOverview?.dayKey ?? null}
+        events={dayOverview?.events ?? []}
+        onClose={() => setDayOverview(null)}
+        onSelectMarathon={(id) => {
+          const m = marathons.find((x) => x.id === id);
+          if (m) setSelected(m);
+        }}
       />
 
       <Footer />
