@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
+import { getServerSupabase } from "@/lib/supabase";
 
 /**
- * 출시 알림 이메일 수집 endpoint.
+ * POST /api/subscribe
+ *   body: { email: string }
  *
- * V1: 단순히 구조 검증 후 console.log + 200 응답. Vercel runtime log 에서
- * 본인이 수동으로 확인. 트래픽 늘면 Loops/Resend 등 정식 서비스로 swap.
+ * 출시 알림용 이메일 수집. Supabase email_subscribers 테이블에 upsert.
+ * 같은 이메일 재등록은 silent no-op (사용자 입장에선 항상 성공).
+ *
+ * 메일 발송은 별도 — 출시 임박 시 Loops/Resend 같은 정식 transactional
+ * 서비스로 옮기거나 SQL Editor 에서 export 해서 일괄 발송.
  */
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,15 +27,38 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "invalid_email" }, { status: 400 });
   }
 
-  // V1: Vercel Functions log 에 남기기. 이메일 수집 정식 서비스 연동 전
-  // 단순한 capture 매커니즘.
-  console.log(JSON.stringify({
-    type: "subscribe",
-    email,
-    at: new Date().toISOString(),
-    ua: req.headers.get("user-agent") ?? null,
-    ref: req.headers.get("referer") ?? null,
-  }));
+  const userAgent = req.headers.get("user-agent") ?? null;
+  const referer = req.headers.get("referer") ?? null;
 
-  return NextResponse.json({ ok: true });
+  const supabase = getServerSupabase();
+  if (!supabase) {
+    // Supabase 미연결 — Vercel logs 에 남기는 fallback
+    console.log(JSON.stringify({
+      type: "subscribe",
+      email, userAgent, referer,
+      at: new Date().toISOString(),
+    }));
+    return NextResponse.json({ ok: true, persisted: false });
+  }
+
+  // upsert: 동일 email 중복 등록은 노출은 silent 성공으로
+  const { error } = await supabase
+    .from("email_subscribers")
+    .upsert(
+      {
+        email,
+        source: "landing-cta",
+        user_agent: userAgent,
+        referer,
+      },
+      { onConflict: "email", ignoreDuplicates: true }
+    );
+
+  if (error) {
+    console.error("[subscribe]", error);
+    // 실패해도 사용자 입장 성공으로 (마케팅 funnel 깨지지 않게).
+    // 운영자는 logs 에서 추적 가능.
+    return NextResponse.json({ ok: true, persisted: false });
+  }
+  return NextResponse.json({ ok: true, persisted: true });
 }
