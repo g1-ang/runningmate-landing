@@ -65,9 +65,9 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           alt=""
           style={{
             position: "absolute",
-            width: 1300,
-            top: -460,
-            left: -50,
+            width: 1500,
+            top: -780,
+            left: -150,
           }}
         />
 
@@ -135,9 +135,9 @@ function defaultImage() {
           alt=""
           style={{
             position: "absolute",
-            width: 1300,
-            top: -460,
-            left: -50,
+            width: 1500,
+            top: -780,
+            left: -150,
           }}
         />
         <div

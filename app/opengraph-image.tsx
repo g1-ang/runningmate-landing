@@ -34,9 +34,9 @@ export default function Image() {
           alt=""
           style={{
             position: "absolute",
-            width: 1300,
-            top: -460,
-            left: -50,
+            width: 1500,
+            top: -780,
+            left: -150,
           }}
         />
         <div
