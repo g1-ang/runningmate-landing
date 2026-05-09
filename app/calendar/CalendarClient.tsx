@@ -9,11 +9,14 @@ import { MarathonDetailModal } from "@/components/MarathonDetailModal";
 import {
   type CalendarFilters,
   type Marathon,
+  type SortMode,
   applyFilters,
   emptyFilters,
   groupByMonth,
   monthLabelOf,
+  sortMarathons,
 } from "@/lib/marathons";
+import { useFavoriteCounts } from "@/lib/useFavoriteCounts";
 import { useFavorites } from "@/lib/useFavorites";
 
 type Props = {
@@ -27,8 +30,10 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
   const [filters, setFilters] = useState<CalendarFilters>(emptyFilters);
   const [view, setView] = useState<ViewMode>("calendar");
   const [viewWasUserSet, setViewWasUserSet] = useState(false);
+  const [sortMode, setSortMode] = useState<SortMode>("date-asc");
   const [selected, setSelected] = useState<Marathon | null>(null);
   const { ids: favoriteIDs, isFavorite, toggle, hydrated } = useFavorites();
+  const { countsMap, promotedSet } = useFavoriteCounts();
 
   // 모바일은 캘린더 그리드(7칸)가 답답해서 기본 목록. 사용자가 토글로
   // 명시적으로 바꾸면 그 선택을 존중. 768px = Tailwind md 브레이크포인트.
@@ -53,8 +58,16 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
     [marathons, filters, favoriteIDs]
   );
 
-  const grouped = useMemo(() => groupByMonth(filtered), [filtered]);
-  const monthKeys = Array.from(grouped.keys()).sort();
+  const sorted = useMemo(
+    () => sortMarathons(filtered, sortMode, countsMap, promotedSet),
+    [filtered, sortMode, countsMap, promotedSet]
+  );
+
+  const grouped = useMemo(() => groupByMonth(sorted), [sorted]);
+  const monthKeys =
+    sortMode === "date-asc"
+      ? Array.from(grouped.keys()).sort()
+      : null; // 인기순일 땐 월 그룹 없이 일렬로 표시
 
   return (
     <main className="min-h-screen bg-ivory text-textPrimary">
@@ -82,7 +95,10 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
             totalCount={marathons.length}
             filteredCount={filtered.length}
           />
-          <ViewToggle view={view} onChange={handleViewChange} />
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <ViewToggle view={view} onChange={handleViewChange} />
+            {view === "list" && <SortToggle mode={sortMode} onChange={setSortMode} />}
+          </div>
         </div>
       </section>
 
@@ -92,10 +108,10 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
         )}
 
         {filtered.length > 0 && view === "calendar" && (
-          <CalendarGrid marathons={filtered} onSelect={setSelected} />
+          <CalendarGrid marathons={sorted} onSelect={setSelected} />
         )}
 
-        {filtered.length > 0 && view === "list" && (
+        {filtered.length > 0 && view === "list" && sortMode === "date-asc" && monthKeys && (
           <div className="space-y-10">
             {monthKeys.map((key) => (
               <div key={key}>
@@ -113,11 +129,37 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
                       isFavorite={isFavorite(m.id)}
                       onToggleFavorite={toggle}
                       onSelect={setSelected}
+                      favoriteCount={countsMap.get(m.id) ?? 0}
+                      isPromoted={promotedSet.has(m.id)}
                     />
                   ))}
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {filtered.length > 0 && view === "list" && sortMode === "popularity-desc" && (
+          <div>
+            <h2 className="font-pixel text-lg md:text-xl text-deepGreen mb-4">
+              🔥 인기 대회
+              <span className="ml-2 text-xs font-bold text-textMuted">
+                {sorted.length}개
+              </span>
+            </h2>
+            <div className="grid md:grid-cols-2 gap-3">
+              {sorted.map((m) => (
+                <MarathonCard
+                  key={m.id}
+                  marathon={m}
+                  isFavorite={isFavorite(m.id)}
+                  onToggleFavorite={toggle}
+                  onSelect={setSelected}
+                  favoriteCount={countsMap.get(m.id) ?? 0}
+                  isPromoted={promotedSet.has(m.id)}
+                />
+              ))}
+            </div>
           </div>
         )}
 
@@ -199,6 +241,29 @@ function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: ViewMode
         }`}
       >
         ☰ 목록
+      </button>
+    </div>
+  );
+}
+
+function SortToggle({ mode, onChange }: { mode: SortMode; onChange: (m: SortMode) => void }) {
+  return (
+    <div className="inline-flex rounded-full border border-border bg-ivory p-1 text-xs font-bold">
+      <button
+        onClick={() => onChange("date-asc")}
+        className={`px-4 py-1.5 rounded-full transition ${
+          mode === "date-asc" ? "bg-deepGreen text-ivory" : "text-textSecondary hover:text-deepGreen"
+        }`}
+      >
+        🗓️ 날짜 임박순
+      </button>
+      <button
+        onClick={() => onChange("popularity-desc")}
+        className={`px-4 py-1.5 rounded-full transition ${
+          mode === "popularity-desc" ? "bg-deepGreen text-ivory" : "text-textSecondary hover:text-deepGreen"
+        }`}
+      >
+        🔥 인기순
       </button>
     </div>
   );

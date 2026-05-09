@@ -231,6 +231,43 @@ export const ALL_REGIONS: Region[] = [
 
 export const ALL_COURSES: Course[] = ["5km", "10km", "Half", "Full"];
 
+// MARK: - Sort
+
+export type SortMode = "date-asc" | "popularity-desc";
+
+export function sortMarathons(
+  marathons: Marathon[],
+  mode: SortMode,
+  counts: Map<string, number>,
+  promotedIDs: Set<string>
+): Marathon[] {
+  // 추천 마라톤은 항상 최상단 (관리자 수동 지정). 그 안에서도
+  // sortMode 에 따라 재정렬.
+  const promoted: Marathon[] = [];
+  const rest: Marathon[] = [];
+  for (const m of marathons) {
+    (promotedIDs.has(m.id) ? promoted : rest).push(m);
+  }
+  const sorter = makeComparator(mode, counts);
+  promoted.sort(sorter);
+  rest.sort(sorter);
+  return [...promoted, ...rest];
+}
+
+function makeComparator(mode: SortMode, counts: Map<string, number>) {
+  return (a: Marathon, b: Marathon): number => {
+    if (mode === "popularity-desc") {
+      const ca = counts.get(a.id) ?? 0;
+      const cb = counts.get(b.id) ?? 0;
+      if (ca !== cb) return cb - ca;
+      // tie-break: 임박순
+      return a.raceDate.localeCompare(b.raceDate);
+    }
+    // date-asc
+    return a.raceDate.localeCompare(b.raceDate);
+  };
+}
+
 /** 필터 칩으로 노출하는 상태들. `finished` 는 "+ 종료 포함" 토글로 별도 처리. */
 export const FILTERABLE_STATUSES: MarathonStatus[] = [
   "before-open",
