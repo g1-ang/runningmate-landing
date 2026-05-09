@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 
-// edge runtime + 인라인 fetch — Satori 가 한글/이모지 fallback 폰트
-// 자동 처리. nodejs runtime 에선 폰트 부재로 500 에러 발생함을 확인.
+// edge runtime — Satori 가 한글/이모지 fallback 폰트 자동 처리.
 export const runtime = "edge";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -19,8 +18,8 @@ type Marathon = {
 };
 
 /**
- * 마라톤별 동적 OG 이미지 — 카톡·트위터·페이스북 공유 시 미리보기.
- * 데이터 fetch 실패 시 기본 브랜드 카드로 fallback.
+ * 마라톤별 동적 OG 이미지. Satori 호환을 위해 단일 column flex column 구조,
+ * `<span>` 대신 `<div>` 만 사용 (Satori 가 inline 요소 처리에 버그 있음).
  */
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   let m: Marathon | null = null;
@@ -32,7 +31,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       m = json.marathons.find((x) => x.id === id) ?? null;
     }
   } catch {
-    // ignore — fallback image 로 보냄
+    // ignore
   }
 
   if (!m) return defaultImage();
@@ -42,6 +41,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     Math.round((new Date(m.raceDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
   );
   const koDate = formatKoDate(m.raceDate);
+  const courses = m.courses.slice(0, 4).join("  ·  ");
 
   return new ImageResponse(
     (
@@ -51,70 +51,69 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          padding: "70px 80px",
+          alignItems: "flex-start",
+          justifyContent: "center",
+          padding: "80px",
           background: "linear-gradient(135deg, #F9F8F3 0%, #D6EFB1 100%)",
-          fontFamily: "system-ui, -apple-system, sans-serif",
+          fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <span style={{ fontSize: 56 }}>🏃</span>
-            <span style={{ fontSize: 32, fontWeight: 900, color: "#1F4F2A" }}>러닝메이트</span>
-          </div>
-          <span
-            style={{
-              padding: "10px 20px",
-              borderRadius: 999,
-              background: "rgba(31, 79, 42, 0.92)",
-              color: "#F9F8F3",
-              fontSize: 22,
-              fontWeight: 700,
-            }}
-          >
-            {m.region}
-          </span>
+        <div style={{ display: "flex", fontSize: 28, color: "#1F4F2A", fontWeight: 700, marginBottom: 24 }}>
+          🏃 러닝메이트  ·  {m.region}
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", marginTop: 60, flex: 1, justifyContent: "center" }}>
-          <div style={{ fontSize: 28, color: "#475240", fontWeight: 700, marginBottom: 16 }}>
-            {koDate} · D-{dDay}
-          </div>
+        <div
+          style={{
+            display: "flex",
+            fontSize: 26,
+            color: "#475240",
+            fontWeight: 700,
+            marginBottom: 20,
+          }}
+        >
+          {koDate}  ·  D-{dDay}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            fontSize: 70,
+            fontWeight: 900,
+            color: "#1F4F2A",
+            letterSpacing: -2,
+            lineHeight: 1.15,
+            marginBottom: 28,
+          }}
+        >
+          {m.name}
+        </div>
+
+        {m.venue && (
           <div
             style={{
-              fontSize: 70,
-              fontWeight: 900,
-              color: "#1F4F2A",
-              letterSpacing: -2,
-              lineHeight: 1.15,
-              maxWidth: 1040,
+              display: "flex",
+              fontSize: 26,
+              color: "#475240",
+              fontWeight: 600,
+              marginBottom: 28,
             }}
           >
-            {m.name}
+            📍 {m.venue}
           </div>
-          {m.venue && (
-            <div style={{ fontSize: 26, color: "#475240", marginTop: 24, fontWeight: 600 }}>
-              📍 {m.venue}
-            </div>
-          )}
-        </div>
+        )}
 
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          {m.courses.slice(0, 4).map((c) => (
-            <span
-              key={c}
-              style={{
-                background: "#FFFFFFCC",
-                padding: "12px 26px",
-                borderRadius: 999,
-                fontSize: 28,
-                fontWeight: 700,
-                color: "#1F4F2A",
-                border: "2px solid rgba(31, 79, 42, 0.13)",
-              }}
-            >
-              {c}
-            </span>
-          ))}
+        <div
+          style={{
+            display: "flex",
+            fontSize: 28,
+            fontWeight: 700,
+            color: "#1F4F2A",
+            background: "#FFFFFFCC",
+            padding: "12px 26px",
+            borderRadius: 999,
+          }}
+        >
+          {courses}
         </div>
       </div>
     ),
@@ -135,12 +134,14 @@ function defaultImage() {
           justifyContent: "center",
           background: "linear-gradient(135deg, #F9F8F3 0%, #D6EFB1 100%)",
           color: "#1F4F2A",
-          fontFamily: "system-ui",
+          fontFamily: "sans-serif",
         }}
       >
-        <div style={{ fontSize: 160 }}>🏃</div>
-        <div style={{ fontSize: 80, fontWeight: 900, marginTop: 24 }}>러닝메이트</div>
-        <div style={{ fontSize: 32, color: "#475240", marginTop: 16 }}>
+        <div style={{ fontSize: 160, display: "flex" }}>🏃</div>
+        <div style={{ fontSize: 80, fontWeight: 900, marginTop: 24, display: "flex" }}>
+          러닝메이트
+        </div>
+        <div style={{ fontSize: 32, color: "#475240", marginTop: 16, display: "flex" }}>
           한 걸음마다 꾸미는 러닝
         </div>
       </div>
