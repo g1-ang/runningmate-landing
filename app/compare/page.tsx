@@ -1,16 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  type Marathon,
-  dDayLabel,
-  fetchMarathons,
-  formatKoreanDate,
-  formatKoreanDateRange,
-  statusColorClass,
-  statusLabel,
-  statusOf,
-} from "@/lib/marathons";
+import { type Marathon, fetchMarathons } from "@/lib/marathons";
 import { SITE_URL } from "@/lib/site";
 import { CompareClient } from "./CompareClient";
 
@@ -95,5 +86,3 @@ function EmptyCompare() {
   );
 }
 
-// helpers re-exported for CompareClient
-export { dDayLabel, formatKoreanDate, formatKoreanDateRange, statusColorClass, statusLabel, statusOf };
