@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   type Marathon,
@@ -167,7 +168,7 @@ export function MarathonDetailModal({
                   } else {
                     setToast(
                       compare.has(marathon.id)
-                        ? "비교에서 빼기"
+                        ? "비교에서 뺐어요"
                         : "비교에 추가됨"
                     );
                   }
@@ -181,6 +182,15 @@ export function MarathonDetailModal({
                 {compare.has(marathon.id) ? "✓ 비교 중" : "⚖️ 비교 추가"}
               </button>
             </div>
+
+            {compare.ids.length > 0 && (
+              <Link
+                href={`/compare?ids=${compare.ids.join(",")}`}
+                className="block w-full text-center px-4 py-2.5 rounded-xl text-xs font-bold bg-pastelLime text-deepGreen border border-deepGreen/30 hover:bg-neon transition"
+              >
+                ⚖️ 현재 {compare.ids.length}개 비교 중 → 비교 보기
+              </Link>
+            )}
           </div>
 
           {toast && (
