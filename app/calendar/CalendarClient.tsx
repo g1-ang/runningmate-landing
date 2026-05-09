@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CalendarFiltersBar } from "@/components/CalendarFilters";
 import { CalendarGrid } from "@/components/CalendarGrid";
@@ -26,8 +26,27 @@ type ViewMode = "calendar" | "list";
 export function CalendarClient({ marathons, generatedAt }: Props) {
   const [filters, setFilters] = useState<CalendarFilters>(emptyFilters);
   const [view, setView] = useState<ViewMode>("calendar");
+  const [viewWasUserSet, setViewWasUserSet] = useState(false);
   const [selected, setSelected] = useState<Marathon | null>(null);
   const { ids: favoriteIDs, isFavorite, toggle, hydrated } = useFavorites();
+
+  // 모바일은 캘린더 그리드(7칸)가 답답해서 기본 목록. 사용자가 토글로
+  // 명시적으로 바꾸면 그 선택을 존중. 768px = Tailwind md 브레이크포인트.
+  useEffect(() => {
+    if (viewWasUserSet) return;
+    const mql = window.matchMedia("(max-width: 767px)");
+    setView(mql.matches ? "list" : "calendar");
+    const onChange = (e: MediaQueryListEvent) => {
+      if (!viewWasUserSet) setView(e.matches ? "list" : "calendar");
+    };
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, [viewWasUserSet]);
+
+  const handleViewChange = (v: ViewMode) => {
+    setView(v);
+    setViewWasUserSet(true);
+  };
 
   const filtered = useMemo(
     () => applyFilters(marathons, filters, favoriteIDs),
@@ -63,7 +82,7 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
             totalCount={marathons.length}
             filteredCount={filtered.length}
           />
-          <ViewToggle view={view} onChange={setView} />
+          <ViewToggle view={view} onChange={handleViewChange} />
         </div>
       </section>
 
@@ -123,19 +142,24 @@ export function CalendarClient({ marathons, generatedAt }: Props) {
 function Header() {
   return (
     <header className="sticky top-0 z-30 bg-ivory/90 backdrop-blur-md border-b border-border">
-      <div className="mx-auto max-w-5xl px-5 py-3.5 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
+      <div className="mx-auto max-w-5xl px-5 py-3.5 flex items-center justify-between gap-3">
+        <Link href="/" className="flex items-center gap-2 shrink-0">
           <span className="text-2xl">🏃</span>
-          <span className="font-pixel text-lg text-deepGreen">러닝메이트</span>
+          <span className="font-pixel text-base md:text-lg text-deepGreen">
+            러닝메이트
+          </span>
         </Link>
-        <nav className="flex items-center gap-6 text-sm font-semibold text-textSecondary">
+        <nav className="flex items-center gap-4 md:gap-6 text-xs md:text-sm font-semibold text-textSecondary">
           <Link href="/calendar" className="text-deepGreen">
             달력
           </Link>
-          <Link href="/#features" className="hover:text-deepGreen">
+          <Link href="/#features" className="hover:text-deepGreen hidden sm:inline">
             기능
           </Link>
-          <Link href="/#cta" className="hover:text-deepGreen">
+          <Link
+            href="/#cta"
+            className="rounded-full bg-deepGreen text-ivory px-3 py-1.5 hover:opacity-90"
+          >
             출시 알림
           </Link>
         </nav>
