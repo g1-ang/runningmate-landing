@@ -119,9 +119,14 @@ export default async function MarathonPage({ params }: Props) {
           <h2 className="text-xs font-bold text-textMuted mb-3">상세</h2>
           <dl className="space-y-2 text-sm">
             <DetailRow label="장소" value={m.venue || "미정"} />
-            <DetailRow label="주최" value={m.organizer || "—"} />
-            <DetailRow label="참가비" value={m.entryFee || "—"} />
+            {m.organizer && <DetailRow label="주최" value={m.organizer} />}
+            {m.entryFee && <DetailRow label="참가비" value={m.entryFee} />}
           </dl>
+          {!m.entryFee && (
+            <p className="text-[11px] text-textMuted mt-2 leading-relaxed">
+              ※ 참가비 정보는 공식 사이트에서 확인해주세요.
+            </p>
+          )}
         </section>
 
         {m.venue && <MapLinks venue={m.venue} />}

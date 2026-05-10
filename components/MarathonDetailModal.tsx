@@ -120,9 +120,18 @@ export function MarathonDetailModal({
             <h3 className="text-xs font-bold text-textMuted mb-3">상세</h3>
             <dl className="space-y-2 text-sm">
               <DetailRow label="장소" value={marathon.venue || "미정"} />
-              <DetailRow label="주최" value={marathon.organizer || "—"} />
-              <DetailRow label="참가비" value={marathon.entryFee || "—"} />
+              {marathon.organizer && (
+                <DetailRow label="주최" value={marathon.organizer} />
+              )}
+              {marathon.entryFee && (
+                <DetailRow label="참가비" value={marathon.entryFee} />
+              )}
             </dl>
+            {!marathon.entryFee && (
+              <p className="text-[11px] text-textMuted mt-2 leading-relaxed">
+                ※ 참가비 정보는 공식 사이트에서 확인해주세요.
+              </p>
+            )}
           </section>
 
           {marathon.venue && <MapLinks venue={marathon.venue} />}
