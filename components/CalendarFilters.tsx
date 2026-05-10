@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   ALL_COURSES,
   ALL_REGIONS,
@@ -19,6 +20,27 @@ type Props = {
 };
 
 export function CalendarFiltersBar({ filters, onChange, totalCount, filteredCount }: Props) {
+  // 모바일은 기본 접힘 (검색·찜 + 토글만 보임). 사용자가 명시적으로
+  // 토글하면 그 선택 존중. 화면 크기 변화 시 자동 재조정.
+  const [expanded, setExpanded] = useState(true);
+  const [userToggled, setUserToggled] = useState(false);
+
+  useEffect(() => {
+    if (userToggled) return;
+    const mql = window.matchMedia("(max-width: 767px)");
+    setExpanded(!mql.matches);
+    const onChangeMql = (e: MediaQueryListEvent) => {
+      if (!userToggled) setExpanded(!e.matches);
+    };
+    mql.addEventListener("change", onChangeMql);
+    return () => mql.removeEventListener("change", onChangeMql);
+  }, [userToggled]);
+
+  const handleToggleExpanded = () => {
+    setExpanded((p) => !p);
+    setUserToggled(true);
+  };
+
   const toggleRegion = (r: Region) => {
     const next = new Set(filters.regions);
     next.has(r) ? next.delete(r) : next.add(r);
@@ -35,15 +57,17 @@ export function CalendarFiltersBar({ filters, onChange, totalCount, filteredCoun
     onChange({ ...filters, statuses: next });
   };
 
-  const hasActiveFilters =
-    filters.regions.size > 0 ||
-    filters.courses.size > 0 ||
-    filters.statuses.size > 0 ||
-    filters.query.trim().length > 0 ||
-    filters.favoritesOnly;
+  const activeCount =
+    filters.regions.size +
+    filters.courses.size +
+    filters.statuses.size +
+    (filters.query.trim() ? 1 : 0) +
+    (filters.favoritesOnly ? 1 : 0);
+  const hasActiveFilters = activeCount > 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
+      {/* 항상 보이는 row: 검색 + 찜 */}
       <div className="flex gap-2">
         <input
           type="search"
@@ -64,49 +88,28 @@ export function CalendarFiltersBar({ filters, onChange, totalCount, filteredCoun
         </button>
       </div>
 
-      <ChipRow label="지역">
-        {ALL_REGIONS.map((r) => (
-          <Chip key={r} active={filters.regions.has(r)} onClick={() => toggleRegion(r)}>
-            {r}
-          </Chip>
-        ))}
-      </ChipRow>
-
-      <ChipRow label="코스">
-        {ALL_COURSES.map((c) => (
-          <Chip key={c} active={filters.courses.has(c)} onClick={() => toggleCourse(c)}>
-            {c}
-          </Chip>
-        ))}
-      </ChipRow>
-
-      <ChipRow label="상태">
-        {FILTERABLE_STATUSES.map((s) => (
-          <Chip
-            key={s}
-            active={filters.statuses.has(s)}
-            onClick={() => toggleStatus(s)}
-            tone={statusTone(s)}
-          >
-            {statusLabel(s)}
-          </Chip>
-        ))}
-        <Chip
-          active={!filters.hideFinished}
-          onClick={() => onChange({ ...filters, hideFinished: !filters.hideFinished })}
-          tone="muted"
+      {/* 항상 보이는 row: 토글 + 요약 + 초기화 */}
+      <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
+        <button
+          onClick={handleToggleExpanded}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-ivory hover:border-deepGreen text-textSecondary font-bold"
         >
-          {filters.hideFinished ? "+ 종료 포함" : "✓ 종료 포함됨"}
-        </Chip>
-      </ChipRow>
+          <span>⚙️ 필터</span>
+          {activeCount > 0 && (
+            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-deepGreen text-ivory text-[10px] px-1">
+              {activeCount}
+            </span>
+          )}
+          <span className="text-textMuted">{expanded ? "▴" : "▾"}</span>
+        </button>
 
-      <div className="flex items-center justify-between text-xs text-textSecondary pt-1">
-        <span>
+        <span className="text-textSecondary">
           총 <strong className="text-deepGreen">{filteredCount}</strong>개
           {filteredCount !== totalCount && (
             <span className="text-textMuted"> / {totalCount}</span>
           )}
         </span>
+
         {hasActiveFilters && (
           <button
             onClick={() =>
@@ -125,6 +128,47 @@ export function CalendarFiltersBar({ filters, onChange, totalCount, filteredCoun
           </button>
         )}
       </div>
+
+      {/* 펼친 상태에서만 보이는 chip rows */}
+      {expanded && (
+        <div className="space-y-3 pt-1">
+          <ChipRow label="지역">
+            {ALL_REGIONS.map((r) => (
+              <Chip key={r} active={filters.regions.has(r)} onClick={() => toggleRegion(r)}>
+                {r}
+              </Chip>
+            ))}
+          </ChipRow>
+
+          <ChipRow label="코스">
+            {ALL_COURSES.map((c) => (
+              <Chip key={c} active={filters.courses.has(c)} onClick={() => toggleCourse(c)}>
+                {c}
+              </Chip>
+            ))}
+          </ChipRow>
+
+          <ChipRow label="상태">
+            {FILTERABLE_STATUSES.map((s) => (
+              <Chip
+                key={s}
+                active={filters.statuses.has(s)}
+                onClick={() => toggleStatus(s)}
+                tone={statusTone(s)}
+              >
+                {statusLabel(s)}
+              </Chip>
+            ))}
+            <Chip
+              active={!filters.hideFinished}
+              onClick={() => onChange({ ...filters, hideFinished: !filters.hideFinished })}
+              tone="muted"
+            >
+              {filters.hideFinished ? "+ 종료 포함" : "✓ 종료 포함됨"}
+            </Chip>
+          </ChipRow>
+        </div>
+      )}
     </div>
   );
 }
