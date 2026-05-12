@@ -39,6 +39,9 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
+  verification: {
+    google: "zLfFGOZavWbtJsQjQ18tpyu74CVbs8x3M5iiHhlZ7DY",
+  },
 };
 
 export const viewport: Viewport = {
