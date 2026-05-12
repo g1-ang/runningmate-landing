@@ -1,17 +1,19 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 export function EmailSignupForm() {
   const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string>("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (status === "submitting") return;
+    if (status === "submitting" || !consent) return;
 
     setStatus("submitting");
     try {
@@ -25,6 +27,7 @@ export function EmailSignupForm() {
       setStatus("success");
       setMessage("등록 완료! 출시 직전에 메일 드릴게요.");
       setEmail("");
+      setConsent(false);
     } catch (err) {
       setStatus("error");
       const code = (err as Error).message;
@@ -36,10 +39,10 @@ export function EmailSignupForm() {
     }
   }
 
-  const disabled = status === "submitting" || !email;
+  const disabled = status === "submitting" || !email || !consent;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
+    <form onSubmit={handleSubmit} className="space-y-3">
       <div className="flex flex-col sm:flex-row gap-3 max-w-lg">
         <input
           type="email"
@@ -61,6 +64,25 @@ export function EmailSignupForm() {
           {status === "submitting" ? "등록 중…" : "알림 받기"}
         </button>
       </div>
+      <label className="flex items-start gap-2 max-w-lg cursor-pointer text-xs text-textSecondary leading-relaxed">
+        <input
+          type="checkbox"
+          checked={consent}
+          onChange={(e) => setConsent(e.target.checked)}
+          className="mt-0.5 size-4 rounded border-border text-deepGreen focus:ring-deepGreen shrink-0 cursor-pointer"
+          aria-label="개인정보 수집·이용 동의"
+        />
+        <span>
+          출시 알림 발송을 위한 이메일 수집·이용에 동의합니다.{" "}
+          <Link
+            href="/privacy"
+            target="_blank"
+            className="text-deepGreen underline hover:opacity-80"
+          >
+            개인정보처리방침
+          </Link>
+        </span>
+      </label>
       <p
         className={`text-xs ${
           status === "success"
@@ -71,7 +93,7 @@ export function EmailSignupForm() {
         }`}
       >
         {message ||
-          "메일 주소만 받고 출시 알림 외에는 사용하지 않아요. 광고도 안 보냅니다."}
+          "출시 알림 1회 발송 후 30일 이내 파기. 광고·제3자 제공 없음."}
       </p>
     </form>
   );

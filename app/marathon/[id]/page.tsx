@@ -160,6 +160,17 @@ export default async function MarathonPage({ params }: Props) {
           >
             📅 다른 마라톤 보기
           </Link>
+          <div className="mb-2 flex flex-wrap justify-center gap-x-4 gap-y-1">
+            <Link href="/privacy" className="hover:text-deepGreen">
+              개인정보처리방침
+            </Link>
+            <Link href="/terms" className="hover:text-deepGreen">
+              이용약관
+            </Link>
+            <a href="mailto:runningmate.g1@gmail.com" className="hover:text-deepGreen">
+              문의
+            </a>
+          </div>
           <p>© 2026 RunningMate · 일정 출처: 마라톤온라인 (roadrun.co.kr)</p>
         </div>
       </footer>

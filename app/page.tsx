@@ -284,15 +284,23 @@ function Footer() {
           <div className="font-pixel text-base text-deepGreen mb-2">🏃 러닝메이트</div>
           <div className="text-xs text-textMuted">한 걸음마다 꾸미는 러닝</div>
         </div>
-        <div className="flex flex-wrap gap-6 text-xs">
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
+          <Link href="/privacy" className="hover:text-deepGreen">
+            개인정보처리방침
+          </Link>
+          <Link href="/terms" className="hover:text-deepGreen">
+            이용약관
+          </Link>
           <a href="mailto:runningmate.g1@gmail.com" className="hover:text-deepGreen">
             문의
           </a>
           <span className="text-textMuted">© 2026 RunningMate</span>
         </div>
       </div>
-      <div className="mx-auto max-w-6xl px-5 mt-6 text-xs text-textMuted">
+      <div className="mx-auto max-w-6xl px-5 mt-6 text-xs text-textMuted leading-relaxed">
         일정 데이터 출처: 마라톤온라인 (roadrun.co.kr) · 정확한 신청은 각 대회 공식 사이트에서 확인해주세요.
+        <br />
+        본 사이트는 쿠팡 파트너스 활동의 일환으로 일정액의 수수료를 제공받을 수 있습니다.
       </div>
     </footer>
   );

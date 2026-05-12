@@ -270,6 +270,17 @@ function Footer() {
         <div className="mb-2">
           <span className="font-pixel text-sm text-deepGreen">🏃 러닝메이트</span>
         </div>
+        <div className="mb-2 flex flex-wrap justify-center gap-x-4 gap-y-1">
+          <Link href="/privacy" className="hover:text-deepGreen">
+            개인정보처리방침
+          </Link>
+          <Link href="/terms" className="hover:text-deepGreen">
+            이용약관
+          </Link>
+          <a href="mailto:runningmate.g1@gmail.com" className="hover:text-deepGreen">
+            문의
+          </a>
+        </div>
         © 2026 RunningMate · 일정 출처: 마라톤온라인 (roadrun.co.kr)
       </div>
     </footer>
