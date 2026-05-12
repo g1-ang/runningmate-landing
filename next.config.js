@@ -1,5 +1,20 @@
 const path = require("path");
 
+/**
+ * 보안 헤더 — 모든 응답에 적용. CSP 는 OG 이미지·Vercel Analytics 등 외부
+ * 리소스를 다양하게 쓰는 사이트라 우선 보류 (false positive 위험). 나머지
+ * 4종은 우리 사이트에 부작용 없는 표준 권장값.
+ */
+const securityHeaders = [
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+  },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -9,6 +24,14 @@ const nextConfig = {
     root: path.resolve(__dirname),
   },
   outputFileTracingRoot: path.resolve(__dirname),
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
