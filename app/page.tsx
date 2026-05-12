@@ -114,9 +114,12 @@ function Hero() {
           <h1 className="font-pixel text-4xl md:text-5xl lg:text-6xl leading-tight text-deepGreen mb-6">
             한 걸음마다<br />꾸미는 러닝
           </h1>
+          <p className="text-base md:text-lg text-textPrimary font-bold mb-3">
+            2026 전국 마라톤 달력 · 무료 러닝 앱
+          </p>
           <p className="text-lg md:text-xl text-textSecondary leading-relaxed mb-8">
-            한국 180+ 마라톤 일정과 픽셀 캐릭터 마이룸을<br />
-            한 앱에서. 달릴 때마다 캐릭터도 같이 자라요.
+            2026 한국 마라톤 일정 180+ 와 픽셀 캐릭터 마이룸을<br />
+            한 앱에서. 5km·10km·하프·풀 — 달릴 때마다 캐릭터도 같이 자라요.
           </p>
           <div id="cta">
             <EmailSignupForm />
@@ -153,10 +156,10 @@ function FeatureGrid() {
     <section id="features" className="bg-cream py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-5">
         <h2 className="font-pixel text-3xl md:text-4xl text-deepGreen mb-3">
-          무엇이 달라요?
+          전국 마라톤 일정 · 한 곳에서
         </h2>
         <p className="text-textSecondary text-base md:text-lg mb-12">
-          마라톤 정보 + 캐릭터 꾸미기 + 자동 기록을 한 곳에.
+          2026 마라톤 달력 + 픽셀 캐릭터 꾸미기 + 자동 러닝 기록까지.
         </p>
         <div className="grid md:grid-cols-2 gap-5">
           {FEATURES.map((f) => (

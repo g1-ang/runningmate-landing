@@ -4,13 +4,19 @@ import { SITE_URL } from "@/lib/site";
 import { CalendarClient } from "./CalendarClient";
 
 export const metadata: Metadata = {
-  title: "마라톤 달력",
+  title: "2026 마라톤 달력 — 전국 180+ 대회 일정",
   description:
-    "전국 180+ 마라톤 일정을 한눈에. 지역·코스·신청 상태 필터, 찜·인기순 정렬, 매주 자동 갱신.",
+    "2026 전국 마라톤 일정 180+ 한눈에. 5km·10km·하프·풀 코스, 지역·신청 상태 필터, 찜·비교·후기. 매주 자동 갱신되는 무료 마라톤 달력.",
+  keywords: [
+    "2026 마라톤 일정", "2026 마라톤 달력", "마라톤 달력",
+    "전국 마라톤", "마라톤 일정", "5km 대회", "10km 대회",
+    "하프 마라톤", "풀 마라톤", "마라톤 신청",
+  ],
   alternates: { canonical: `${SITE_URL}/calendar` },
   openGraph: {
-    title: "전국 마라톤 달력 · 러닝메이트",
-    description: "지역·코스·신청 상태로 필터링. 매주 일요일 자동 갱신.",
+    title: "2026 전국 마라톤 달력 · 러닝메이트",
+    description:
+      "2026 마라톤 일정 180+. 지역·코스·신청 상태로 필터링. 매주 일요일 자동 갱신.",
     url: `${SITE_URL}/calendar`,
     type: "website",
   },

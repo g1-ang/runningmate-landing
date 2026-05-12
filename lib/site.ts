@@ -11,7 +11,7 @@ export const SITE_URL =
 export const SITE_NAME = "러닝메이트";
 export const SITE_TAGLINE = "한 걸음마다 꾸미는 러닝";
 export const SITE_DESCRIPTION =
-  "한국 마라톤 일정 + 8-bit 픽셀 캐릭터 마이룸. 달린 만큼 자라는 나만의 러너.";
+  "2026 전국 마라톤 일정 달력 + 8-bit 픽셀 캐릭터 마이룸. 무료 러닝 앱 — 매주 자동 갱신, 찜·비교·후기까지 한 번에.";
 
 /**
  * Deploy 별 OG 이미지 cache-buster.

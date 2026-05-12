@@ -9,13 +9,16 @@ const ROOT_OG_IMAGE = buildOGUrl("/opengraph-image");
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    default: `${SITE_NAME} — 2026 마라톤 달력 · 무료 러닝 앱`,
     template: `%s — ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   keywords: [
-    "마라톤", "러닝", "마라톤 일정", "마라톤 달력",
-    "한국 마라톤", "러닝 앱", "픽셀 캐릭터",
+    "2026 마라톤", "2026 마라톤 일정", "마라톤 일정", "마라톤 달력",
+    "한국 마라톤", "전국 마라톤", "마라톤 추천", "마라톤 신청",
+    "러닝 앱", "러닝 앱 추천", "무료 러닝 앱", "무료 마라톤 앱",
+    "5km 대회", "10km 대회", "하프 마라톤", "풀 마라톤",
+    "마라톤", "러닝", "픽셀 캐릭터", "8-bit 러닝",
     SITE_NAME,
   ],
   authors: [{ name: SITE_NAME }],
