@@ -36,9 +36,6 @@ export const metadata: Metadata = {
     description: SITE_TAGLINE,
     images: [ROOT_OG_IMAGE],
   },
-  icons: {
-    icon: "/favicon.ico",
-  },
   verification: {
     google: "zLfFGOZavWbtJsQjQ18tpyu74CVbs8x3M5iiHhlZ7DY",
   },

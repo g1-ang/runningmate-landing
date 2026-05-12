@@ -54,7 +54,7 @@ export function EmailSignupForm() {
           }}
           placeholder="이메일을 남기면 출시 시 알려드려요"
           aria-label="이메일"
-          className="flex-1 rounded-xl border border-border bg-surface px-4 py-3.5 text-sm focus:outline-none focus:border-deepGreen"
+          className="flex-1 rounded-xl border border-border bg-surface px-4 py-3.5 text-sm focus:outline-none focus:border-deepGreen focus:ring-2 focus:ring-deepGreen/20"
         />
         <button
           type="submit"

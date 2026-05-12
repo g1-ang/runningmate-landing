@@ -74,7 +74,8 @@ export function CalendarFiltersBar({ filters, onChange, totalCount, filteredCoun
           value={filters.query}
           onChange={(e) => onChange({ ...filters, query: e.target.value })}
           placeholder="대회 이름·장소·주최로 검색"
-          className="flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:outline-none focus:border-deepGreen"
+          aria-label="마라톤 검색"
+          className="flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:outline-none focus:border-deepGreen focus:ring-2 focus:ring-deepGreen/20"
         />
         <button
           onClick={() => onChange({ ...filters, favoritesOnly: !filters.favoritesOnly })}

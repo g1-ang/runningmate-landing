@@ -75,7 +75,8 @@ export function ReviewSection({ marathonId }: Props) {
           onChange={(e) => setDraftBody(e.target.value.slice(0, BODY_MAX))}
           placeholder="한 줄 후기 (선택) — 코스·운영·분위기 등"
           rows={2}
-          className="w-full rounded-lg border border-border bg-ivory px-3 py-2 text-sm focus:outline-none focus:border-deepGreen resize-none"
+          aria-label="후기 입력"
+          className="w-full rounded-lg border border-border bg-ivory px-3 py-2 text-sm focus:outline-none focus:border-deepGreen focus:ring-2 focus:ring-deepGreen/20 resize-none"
         />
         <div className="flex items-center justify-between mt-2 gap-2">
           <span className="text-[10px] text-textMuted">

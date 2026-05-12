@@ -192,6 +192,15 @@ export function MarathonDetailModal({
               </button>
             </div>
 
+            <Link
+              href={`/marathon/${marathon.id}`}
+              target="_blank"
+              rel="noopener"
+              className="block w-full text-center px-4 py-2.5 rounded-xl text-xs font-bold border border-border text-textSecondary bg-ivory hover:border-deepGreen hover:text-deepGreen transition"
+            >
+              📄 공유용 페이지 열기 ↗
+            </Link>
+
             {compare.ids.length > 0 && (
               <Link
                 href={`/compare?ids=${compare.ids.join(",")}`}

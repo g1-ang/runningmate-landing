@@ -216,7 +216,7 @@ function Field({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:outline-none focus:border-deepGreen"
+        className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:outline-none focus:border-deepGreen focus:ring-2 focus:ring-deepGreen/20"
       />
     </label>
   );
@@ -241,7 +241,7 @@ function Textarea({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={3}
-        className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:outline-none focus:border-deepGreen resize-none"
+        className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm focus:outline-none focus:border-deepGreen focus:ring-2 focus:ring-deepGreen/20 resize-none"
       />
     </label>
   );
