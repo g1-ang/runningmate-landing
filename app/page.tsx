@@ -88,8 +88,8 @@ function Header() {
         </a>
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-textSecondary">
           <Link href="/calendar" className="hover:text-deepGreen">마라톤 달력</Link>
+          <Link href="/stats" className="hover:text-deepGreen">통계</Link>
           <a href="#features" className="hover:text-deepGreen">기능</a>
-          <a href="#screenshots" className="hover:text-deepGreen">화면</a>
           <a href="#faq" className="hover:text-deepGreen">FAQ</a>
         </nav>
         <a

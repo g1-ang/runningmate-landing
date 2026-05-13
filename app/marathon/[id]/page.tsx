@@ -196,6 +196,37 @@ export default async function MarathonPage({ params }: Props) {
           }),
         }}
       />
+
+      {/* BreadcrumbList — Google 검색 결과에서 "러닝메이트 > 마라톤 달력 > {대회명}" 경로 표시 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "러닝메이트",
+                item: SITE_URL,
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "마라톤 달력",
+                item: `${SITE_URL}/calendar`,
+              },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: m.name,
+                item: `${SITE_URL}/marathon/${m.id}`,
+              },
+            ],
+          }),
+        }}
+      />
     </main>
   );
 }

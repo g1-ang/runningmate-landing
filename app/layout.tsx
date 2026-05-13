@@ -24,6 +24,11 @@ export const metadata: Metadata = {
   authors: [{ name: SITE_NAME }],
   alternates: {
     canonical: SITE_URL,
+    types: {
+      "application/rss+xml": [
+        { url: "/rss.xml", title: "러닝메이트 마라톤 RSS" },
+      ],
+    },
   },
   openGraph: {
     title: SITE_NAME,
