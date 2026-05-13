@@ -121,7 +121,8 @@ export function CalendarGrid({
               >
                 {d.getDate()}
               </div>
-              <div className="space-y-0.5">
+              {/* 데스크탑: 마라톤 이름 라벨 (기존) */}
+              <div className="hidden md:block space-y-0.5">
                 {dayEvents.slice(0, showFirstN).map((e, idx) => (
                   <CalendarEntry
                     key={`${e.marathon.id}-${e.type}-${idx}`}
@@ -138,6 +139,29 @@ export function CalendarGrid({
                   </button>
                 )}
               </div>
+
+              {/* 모바일: 셀이 좁아서 이름은 무용지물 → 컬러 점 + 개수.
+                  탭하면 DayOverviewSheet 가 마라톤 리스트를 띄움 */}
+              {dayEvents.length > 0 && (
+                <button
+                  onClick={() => onSelectDay(key, dayEvents)}
+                  aria-label={`${d.getDate()}일 마라톤 ${dayEvents.length}건`}
+                  className="md:hidden block w-full text-left mt-0.5 px-1 py-0.5 rounded hover:bg-surfaceMuted/40 active:bg-surfaceMuted/60 transition"
+                >
+                  <div className="flex flex-wrap gap-0.5 mb-0.5">
+                    {dayEvents.slice(0, 8).map((e, idx) => (
+                      <span
+                        key={idx}
+                        className={`size-1.5 rounded-full ${eventTypeDotClass(e.type)}`}
+                        aria-hidden="true"
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-bold text-textSecondary">
+                    {dayEvents.length}건
+                  </span>
+                </button>
+              )}
             </div>
           );
         })}
@@ -164,5 +188,18 @@ export function eventTypeColorClass(type: CalendarEventType): string {
     case "before-close":    return "bg-pastelLime text-deepGreen";
     case "before-announce": return "bg-pastelLilac text-[#5C2DAA]";
     case "before-race":     return "bg-pastelPink text-[#B01760]";
+  }
+}
+
+/**
+ * 모바일 셀에서 쓰는 단색 dot 클래스 — pastel 배경 위에 안 보일 만큼
+ * 작은 점이라 진한 단색이 필요. 카드 라벨과 같은 hue 의 진한 톤.
+ */
+export function eventTypeDotClass(type: CalendarEventType): string {
+  switch (type) {
+    case "before-open":     return "bg-[#1353A6]";
+    case "before-close":    return "bg-deepGreen";
+    case "before-announce": return "bg-[#5C2DAA]";
+    case "before-race":     return "bg-[#B01760]";
   }
 }
